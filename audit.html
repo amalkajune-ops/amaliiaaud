@@ -1,3 +1,21 @@
+<!DOCTYPE html><html lang="ru"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Amaliia Audit — Demo</title>
+<style>
+body{background:#0b0c10;color:#e9eef3;font-family:Inter,Arial,sans-serif;margin:0;padding:24px}
+input,select,button{padding:10px;border-radius:10px;border:1px solid #333;background:#111318;color:#e9eef3}
+button{background:linear-gradient(120deg,#c1ff72,#7df9ff);color:#0b0c10;border:none;font-weight:700}
+.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px;margin-top:14px}
+pre{white-space:pre-wrap;word-break:break-word}
+</style></head><body>
+<h1>AI Profile Audit — demo</h1>
+<div>
+  <select id="platform"><option>Instagram</option><option>TikTok</option><option>YouTube</option></select>
+  <input id="handle" placeholder="@yourname">
+  <select id="goal"><option>Рост</option><option>Лиды</option><option>UGC</option><option>Люкс-имидж</option></select>
+  <button id="go">Сгенерировать</button>
+</div>
+<div class="card"><pre id="out">Готово к запуску…</pre></div>
 <script>
 document.getElementById('go').onclick = async () => {
   const body = {
@@ -5,22 +23,9 @@ document.getElementById('go').onclick = async () => {
     platform: document.getElementById('platform').value,
     goal: document.getElementById('goal').value
   };
-  const out = document.getElementById('out');
-  out.textContent = 'Считаю…';
-  try {
-    const r = await fetch('/api/audit', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(body)
-    });
-    const text = await r.text();         // читаем как текст, чтобы видеть ошибки
-    if (!r.ok) {                         // если 4xx/5xx — покажем статус и тело
-      out.textContent = `Ошибка ${r.status}: ${text}`;
-      return;
-    }
-    out.textContent = JSON.stringify(JSON.parse(text), null, 2);
-  } catch (err) {
-    out.textContent = 'Сетевая ошибка: ' + String(err);
-  }
+  document.getElementById('out').textContent = 'Считаю…';
+  const r = await fetch('/api/audit', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const j = await r.json();
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
 };
-</script>
+</script></body></html>
