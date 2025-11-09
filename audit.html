@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ru"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Amaliia Audit — Demo</title>
+<title>Amaliia Audit - Demo</title>
 <style>
 body{background:#0b0c10;color:#e9eef3;font-family:Inter,Arial,sans-serif;margin:0;padding:24px}
 input,select,button{padding:10px;border-radius:10px;border:1px solid #333;background:#111318;color:#e9eef3}
@@ -12,10 +12,10 @@ pre{white-space:pre-wrap;word-break:break-word}
 <div>
   <select id="platform"><option>Instagram</option><option>TikTok</option><option>YouTube</option></select>
   <input id="handle" placeholder="@yourname">
-  <select id="goal"><option>Рост</option><option>Лиды</option><option>UGC</option><option>Люкс-имидж</option></select>
-  <button id="go">Сгенерировать</button>
+  <select id="goal"><option>Growth</option><option>Leads</option><option>UGC</option><option>Iconic style</option></select>
+  <button id="go">Generate</button>
 </div>
-<div class="card"><pre id="out">Готово к запуску…</pre></div>
+<div class="card"><pre id="out">Ready to generate…</pre></div>
 <script>
 document.getElementById('go').onclick = async () => {
   const body = {
@@ -23,7 +23,7 @@ document.getElementById('go').onclick = async () => {
     platform: document.getElementById('platform').value,
     goal: document.getElementById('goal').value
   };
-  document.getElementById('out').textContent = 'Считаю…';
+  document.getElementById('out').textContent = 'Calculating…';
   const r = await fetch('/api/audit', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
   const j = await r.json();
   document.getElementById('out').textContent = JSON.stringify(j, null, 2);
