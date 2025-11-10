@@ -136,32 +136,71 @@ $('demo').onclick = () => {
   $('linkVisible').value = 'true';
 };
 
+<script>
+const $ = (id)=>document.getElementById(id);
+const out = $('out');
+
+function num(v){ const x = Number(v); return Number.isFinite(x) ? x : undefined }
+function bool(v){ return String(v).toLowerCase()==='true' }
+function clean(obj){
+  if (obj == null) return obj;
+  if (Array.isArray(obj)) return obj.map(clean);
+  if (typeof obj === 'object'){
+    const r = {};
+    for (const [k,v] of Object.entries(obj)){
+      if (v === undefined || v === null || v === '') continue;
+      r[k] = (typeof v === 'object') ? clean(v) : v;
+    }
+    return r;
+  }
+  return obj;
+}
+
 $('go').onclick = async () => {
-  const body = {
-    handle: $('handle').value.trim() || '@yourname',
+  const sig = clean({
+    topic: ($('topic').value || '').trim(),
+    geo: ($('geo').value || '').trim(),
+    audience: ($('audience').value || '').trim(),
+    posts_last_30d: num($('posts30').value),
+    posting_days_last_30d: num($('days30').value),
+    niche_hashtag_ratio: num($('nicheRatio').value),
+    avg_hashtags_per_post: num($('avgTags').value),
+    format_mix: clean({
+      reels: num($('mixReels').value),
+      photos: num($('mixPhotos').value),
+      carousels: num($('mixCar').value)
+    }),
+    cover_text_ratio: num($('coverRatio').value),
+    bio_has_offer: bool($('bioOffer').value),
+    bio_first_line_hook: bool($('bioHook').value),
+    link_visible: bool($('linkVisible').value),
+    hook_rate: num($('hookRate').value),
+    cta_rate: num($('ctaRate').value)
+  });
+
+  const body = clean({
+    handle: ($('handle').value || '@yourname').trim(),
     platform: $('platform').value,
     goal: $('goal').value,
-    signals: {
-      topic: ($('topic').value || '').trim(),
-      geo: ($('geo').value || '').trim(),
-      audience: ($('audience').value || '').trim(),
-      posts_last_30d: num($('posts30').value),
-      posting_days_last_30d: num($('days30').value),
-      niche_hashtag_ratio: num($('nicheRatio').value),
-      avg_hashtags_per_post: num($('avgTags').value),
-      format_mix: {
-        reels: num($('mixReels').value),
-        photos: num($('mixPhotos').value),
-        carousels: num($('mixCar').value)
-      },
-      cover_text_ratio: num($('coverRatio').value),
-      bio_has_offer: bool($('bioOffer').value),
-      bio_first_line_hook: bool($('bioHook').value),
-      link_visible: bool($('linkVisible').value),
-      hook_rate: num($('hookRate').value),
-      cta_rate: num($('ctaRate').value)
-    }
-  };
+    signals: Object.keys(sig||{}).length ? sig : undefined
+  });
+
+  out.textContent = 'Calculating…';
+  try{
+    const r = await fetch('/api/audit2', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(body),
+      cache:'no-store'
+    });
+    const text = await r.text();
+    if(!r.ok){ out.textContent = `Error ${r.status}:\n${text}`; return; }
+    let data; try{ data = JSON.parse(text) }catch{ out.textContent = text; return; }
+    document.getElementById('reportBox').innerHTML = renderReport(data);
+    attachPrint();
+  }catch(e){ out.textContent = 'Network error: '+ String(e); }
+};
+</script>
 
   out.textContent = 'Calculating…';
   try{
