@@ -1,33 +1,147 @@
-<!DOCTYPE html><html lang="ru"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Amaliia Audit - Demo</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Amaliia AI — Profile Audit</title>
 <style>
-body{background:#0b0c10;color:#e9eef3;font-family:Inter,Arial,sans-serif;margin:0;padding:24px}
-input,select,button{padding:10px;border-radius:10px;border:1px solid #333;background:#111318;color:#e9eef3}
-button{background:linear-gradient(120deg,#c1ff72,#7df9ff);color:#0b0c10;border:none;font-weight:700}
-.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px;margin-top:14px}
-pre{white-space:pre-wrap;word-break:break-word}
-</style></head><body>
-<h1>AI Profile Audit — demo</h1>
-<div>
-  <select id="platform"><option>Instagram</option><option>TikTok</option><option>YouTube</option></select>
-  <input id="handle" placeholder="@yourname">
-  <select id="goal"><option>Growth</option><option>Leads</option><option>UGC</option><option>Iconic style</option></select>
-  <button id="go">Generate</button>
-</div>
-<div class="card"><pre id="out">Ready to generate…</pre></div>
+  :root{
+    --bg:#0b0c10;--panel:rgba(255,255,255,.06);--panel2:rgba(255,255,255,.12);
+    --text:#e9eef3;--muted:#a8b3bd;--accent:#c1ff72;--accent2:#7df9ff;
+    --radius:16px;--shadow:0 10px 30px rgba(0,0,0,.35)
+  }
+  *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,Inter,Segoe UI,Roboto,Arial,sans-serif}
+  .wrap{max-width:960px;margin:0 auto;padding:24px}
+  h1{margin:0 0 12px;font-size:clamp(24px,4vw,36px);letter-spacing:-.02em}
+  p.muted{color:var(--muted);margin:.25rem 0 1rem}
+  .card{background:var(--panel);border:1px solid var(--panel2);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+  .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+  label{display:grid;gap:6px;font-size:.95rem}
+  input,select,button,textarea{
+    padding:10px;border-radius:10px;border:1px solid var(--panel2);background:#111318;color:var(--text);outline:none
+  }
+  button.primary{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#0b0c10;border:none;font-weight:800;cursor:pointer}
+  button.ghost{background:transparent;border:1px solid var(--panel2);cursor:pointer}
+  details{margin-top:10px} summary{cursor:pointer}
+  .report{margin-top:14px}
+  .score-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+  .chip{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .panel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px}
+  .panel h3{margin:0 0 6px}
+  .block h4{margin:8px 0 6px}
+  .block ul,.actions{margin:0;padding-left:18px}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  code{display:inline-block;padding:6px 8px;border-radius:8px;background:#0e1016;border:1px solid rgba(255,255,255,.08);margin:4px 6px 0 0;white-space:normal}
+  .export-row{display:flex;justify-content:flex-end;margin-top:12px}
+  .status{white-space:pre-wrap}
+  @media (max-width:800px){.row{grid-template-columns:1fr} .grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>AI Profile Audit</h1>
+    <p class="muted">Enter a handle and goal. Optionally provide signals so the model doesn’t guess.</p>
+
+    <div class="card">
+      <div class="row">
+        <label>
+          Platform
+          <select id="platform">
+            <option>Instagram</option>
+            <option>TikTok</option>
+            <option>YouTube</option>
+          </select>
+        </label>
+        <label>
+          @handle
+          <input id="handle" placeholder="@yourname" />
+        </label>
+        <label>
+          Goal
+          <select id="goal">
+            <option>Growth</option>
+            <option>Leads</option>
+            <option>UGC</option>
+            <option>Iconic style</option>
+          </select>
+        </label>
+      </div>
+
+      <details>
+        <summary><strong>Advanced signals</strong> (optional)</summary>
+        <div class="row">
+          <label>Posts last 30d <input id="s_posts" type="number" min="0" max="60" value="30"></label>
+          <label>Posting days last 30d <input id="s_days" type="number" min="0" max="30" value="28"></label>
+          <label>Niche hashtag ratio (0–1) <input id="s_niche" type="number" step="0.05" min="0" max="1" value="0.75"></label>
+        </div>
+        <div class="row">
+          <label>Avg hashtags / post <input id="s_avg_tags" type="number" min="0" max="30" value="12"></label>
+          <label>Cover text ratio (0–1) <input id="s_cover" type="number" step="0.05" min="0" max="1" value="0.6"></label>
+          <label>Format mix (JSON) <input id="s_mix" type="text" value='{"reels":0.7,"photos":0.2,"carousels":0.1}'></label>
+        </div>
+        <div class="row">
+          <label><input id="s_bio_offer" type="checkbox" checked> Bio has clear offer</label>
+          <label><input id="s_bio_hook" type="checkbox" checked> First line is a hook</label>
+          <label><input id="s_link" type="checkbox" checked> Link visible</label>
+        </div>
+        <div class="row">
+          <label>Hook rate (0–1) <input id="s_hook" type="number" step="0.05" min="0" max="1" value="0.55"></label>
+          <label>CTA rate (0–1) <input id="s_cta" type="number" step="0.05" min="0" max="1" value="0.35"></label>
+          <span></span>
+        </div>
+      </details>
+
+      <div style="margin-top:12px; display:flex; gap:10px;">
+        <button class="primary" id="go">Generate</button>
+        <button class="ghost" id="fillNastia" title="Fill example daily-posting signals">@oh_naastya demo</button>
+      </div>
+    </div>
+
+    <div class="card report">
+      <div id="out" class="status">Ready to generate…</div>
+    </div>
+  </div>
+
 <script>
 const out = document.getElementById('out');
 const btn = document.getElementById('go');
+const btnDemo = document.getElementById('fillNastia');
+
+btnDemo.onclick = () => {
+  // заполнение полей под кейс "постит почти каждый день + нишевые хэштеги"
+  document.getElementById('handle').value = '@oh_naastya';
+  document.getElementById('platform').value = 'Instagram';
+  document.getElementById('goal').value = 'Leads';
+  document.getElementById('s_posts').value = 30;
+  document.getElementById('s_days').value = 28;
+  document.getElementById('s_niche').value = 0.75;
+  document.getElementById('s_avg_tags').value = 12;
+  document.getElementById('s_cover').value = 0.6;
+  document.getElementById('s_mix').value = '{"reels":0.7,"photos":0.2,"carousels":0.1}';
+  document.getElementById('s_bio_offer').checked = true;
+  document.getElementById('s_bio_hook').checked = true;
+  document.getElementById('s_link').checked = true;
+  document.getElementById('s_hook').value = 0.55;
+  document.getElementById('s_cta').value = 0.35;
+};
 
 btn.onclick = async () => {
+  out.textContent = 'Calculating…';
+
+  // безопасно разбираем формат-микс из инпута
+  let mix = {};
+  try { mix = JSON.parse(document.getElementById('s_mix').value || '{}'); }
+  catch { mix = {}; }
+
+  const signals = buildSignals(mix);
   const body = {
     handle: document.getElementById('handle').value || '@yourname',
     platform: document.getElementById('platform').value,
-    goal: document.getElementById('goal').value
+    goal: document.getElementById('goal').value,
+    signals // может быть пустым объектом — это ок
   };
-
-  out.textContent = 'Calculating…';
 
   try {
     const r = await fetch('/api/audit2', {
@@ -36,18 +150,13 @@ btn.onclick = async () => {
       body: JSON.stringify(body),
       cache:'no-store'
     });
-
     const text = await r.text();
-    if (!r.ok) {
-      out.textContent = `Error ${r.status}:\n${text}`;
-      return;
-    }
+    if (!r.ok) { out.textContent = `Error ${r.status}:\n${text}`; return; }
 
     let data;
     try { data = JSON.parse(text); }
     catch { out.textContent = 'Response is not JSON:\n' + text; return; }
 
-    // Render pretty report
     out.parentElement.innerHTML = renderReport(data);
     attachPrint();
   } catch (e) {
@@ -55,23 +164,44 @@ btn.onclick = async () => {
   }
 };
 
+function buildSignals(mix){
+  // если пользователь не открывал Advanced — считаем, что signals отсутствуют (пусть ИИ попросит данные)
+  const posts = document.getElementById('s_posts')?.value;
+  if (posts === undefined) return undefined;
+
+  return {
+    posts_last_30d: num('s_posts', 0),
+    posting_days_last_30d: num('s_days', 0),
+    niche_hashtag_ratio: num('s_niche', 0),
+    avg_hashtags_per_post: num('s_avg_tags', 0),
+    format_mix: mix || {},
+    cover_text_ratio: num('s_cover', 0),
+    bio_has_offer: !!document.getElementById('s_bio_offer')?.checked,
+    bio_first_line_hook: !!document.getElementById('s_bio_hook')?.checked,
+    link_visible: !!document.getElementById('s_link')?.checked,
+    hook_rate: num('s_hook', 0),
+    cta_rate: num('s_cta', 0)
+  };
+}
+function num(id, def){ const v = Number(document.getElementById(id).value); return Number.isFinite(v)? v : def; }
+
 function renderReport(d){
-  const scoreRow = Object.entries(d.scores || {}).map(([k,v]) =>
+  const scoreRow = d.scores ? Object.entries(d.scores).map(([k,v]) =>
     `<div class="chip"><strong>${k}</strong>&nbsp;${v}%</div>`
-  ).join('');
+  ).join('') : '<span class="muted">No scores</span>';
 
   const findings = d.findings ? Object.entries(d.findings).map(([k,arr])=>{
-    const items = (arr||[]).map(i=>`<li>${i}</li>`).join('');
+    const items = (arr||[]).map(i=>`<li>${escapeHtml(i)}</li>`).join('');
     return `<div class="block"><h4>${cap(k)}</h4><ul>${items}</ul></div>`;
   }).join('') : '';
 
-  const actions = (d.actions_next7days||[]).map(a=>`<li>${a}</li>`).join('');
-  const hooks = (d.ready_to_copy?.hooks||[]).map(h=>`<code>${h}</code>`).join('');
-  const tags  = (d.ready_to_copy?.hashtags||[]).map(t=>`<span class="pill">${t}</span>`).join('');
+  const actions = (d.actions_next7days||[]).map(a=>`<li>${escapeHtml(a)}</li>`).join('');
+  const hooks = (d.ready_to_copy?.hooks||[]).map(h=>`<code>${escapeHtml(h)}</code>`).join('');
+  const tags  = (d.ready_to_copy?.hashtags||[]).map(t=>`<span class="chip">${escapeHtml(t)}</span>`).join('');
 
   return `
     <div class="report-head">
-      <h3>Report for <span class="accent">${escapeHtml(d.profile?.handle || '@yourname')}</span> · ${escapeHtml(d.profile?.platform || '')}</h3>
+      <h3>Report for <span class="chip">${escapeHtml(d.profile?.handle || '@yourname')}</span> · ${escapeHtml(d.profile?.platform || '')}</h3>
       <p class="muted">Goal: ${escapeHtml(d.profile?.goal || '')}</p>
     </div>
     <div class="score-row">${scoreRow}</div>
@@ -80,19 +210,16 @@ function renderReport(d){
       <section class="panel">
         <h3>Next 7 Days</h3>
         ${actions ? `<ul class="actions">${actions}</ul>` : '<p class="muted">No actions</p>'}
-        ${hooks ? '<h4>Ready-to-copy Hooks</h4>'+hooks : ''}
+        ${hooks ? '<h4 style="margin-top:10px">Ready-to-copy Hooks</h4>'+hooks : ''}
         ${tags  ? '<div class="tags">'+tags+'</div>' : ''}
       </section>
     </div>
-    <div class="export-row"><button class="btn ghost" id="exportPdf">Export PDF</button></div>
+    <div class="export-row"><button class="ghost" id="exportPdf">Export PDF</button></div>
   `;
 }
-
-function attachPrint(){
-  const btn = document.getElementById('exportPdf');
-  if (btn) btn.onclick = () => window.print();
-}
-
-function cap(s){ return (s||'').slice(0,1).toUpperCase()+ (s||'').slice(1); }
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
+function attachPrint(){ const b=document.getElementById('exportPdf'); if (b) b.onclick=()=>window.print(); }
+function cap(s){ return (s||'').slice(0,1).toUpperCase()+(s||'').slice(1); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
 </script>
+</body>
+</html>
