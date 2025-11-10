@@ -24,7 +24,7 @@ document.getElementById('go').onclick = async () => {
     goal: document.getElementById('goal').value
   };
   document.getElementById('out').textContent = 'Calculating…';
-  const r = await fetch('/api/audit', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const r = await fetch('/api/audit2', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
   const j = await r.json();
   document.getElementById('out').textContent = JSON.stringify(j, null, 2);
 };
