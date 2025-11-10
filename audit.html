@@ -33,23 +33,17 @@
     <h1>AI Profile Audit</h1>
     <p class="muted">Enter a handle and goal. Optionally provide signals so the model doesn’t guess.</p>
 
-    <!-- form -->
     <div class="card">
       <div class="grid">
-        <label>
-          Platform
+        <label>Platform
           <select id="platform">
             <option>Instagram</option><option>TikTok</option><option>YouTube</option>
           </select>
         </label>
-
-        <label>
-          @handle
+        <label>@handle
           <input id="handle" placeholder="@yourname" />
         </label>
-
-        <label>
-          Goal
+        <label>Goal
           <select id="goal">
             <option>Growth</option><option>Leads</option><option>UGC</option><option>Iconic style</option>
           </select>
@@ -57,16 +51,13 @@
       </div>
 
       <div class="grid" style="margin-top:10px">
-        <label>
-          Topic/Niche
+        <label>Topic/Niche
           <input id="topic" placeholder="e.g., fitness, women’s sport, calisthenics" />
         </label>
-        <label>
-          Geo (optional)
+        <label>Geo (optional)
           <input id="geo" placeholder="e.g., Miami" />
         </label>
-        <label>
-          Audience (optional)
+        <label>Audience (optional)
           <input id="audience" placeholder="e.g., women 18–30" />
         </label>
       </div>
@@ -90,11 +81,17 @@
         </div>
         <div class="grid" style="margin-top:10px">
           <label>Format mix (carousels) <input id="mixCar" type="number" step="0.01" min="0" max="1" placeholder="0.1" /></label>
-          <label>Bio has offer <select id="bioOffer"><option value="true">true</option><option value="false">false</option></select></label>
-          <label>Bio first-line hook <select id="bioHook"><option value="true">true</option><option value="false">false</option></select></label>
+          <label>Bio has offer
+            <select id="bioOffer"><option value="true">true</option><option value="false">false</option></select>
+          </label>
+          <label>Bio first-line hook
+            <select id="bioHook"><option value="true">true</option><option value="false">false</option></select>
+          </label>
         </div>
         <div class="row" style="margin-top:10px">
-          <label>Link visible <select id="linkVisible"><option value="true">true</option><option value="false">false</option></select></label>
+          <label>Link visible
+            <select id="linkVisible"><option value="true">true</option><option value="false">false</option></select>
+          </label>
         </div>
       </details>
 
@@ -104,7 +101,6 @@
       </div>
     </div>
 
-    <!-- output -->
     <div class="card" id="reportBox">
       <pre id="out" class="muted">Ready…</pre>
     </div>
@@ -120,87 +116,34 @@ $('demo').onclick = () => {
   $('topic').value = "fitness, women’s sport, calisthenics";
   $('geo').value = "Miami";
   $('audience').value = "women 18–30";
-
-  $('posts30').value = 30;
-  $('days30').value = 28;
-  $('nicheRatio').value = 0.75;
-  $('avgTags').value = 12;
-  $('coverRatio').value = 0.6;
-  $('hookRate').value = 0.55;
-  $('ctaRate').value = 0.35;
-  $('mixReels').value = 0.7;
-  $('mixPhotos').value = 0.2;
-  $('mixCar').value = 0.1;
-  $('bioOffer').value = 'true';
-  $('bioHook').value = 'true';
-  $('linkVisible').value = 'true';
+  $('posts30').value = 30; $('days30').value = 28; $('nicheRatio').value = 0.75;
+  $('avgTags').value = 12; $('coverRatio').value = 0.6; $('hookRate').value = 0.55; $('ctaRate').value = 0.35;
+  $('mixReels').value = 0.7; $('mixPhotos').value = 0.2; $('mixCar').value = 0.1;
+  $('bioOffer').value = 'true'; $('bioHook').value = 'true'; $('linkVisible').value = 'true';
 };
-
-<script>
-const $ = (id)=>document.getElementById(id);
-const out = $('out');
-
-function num(v){ const x = Number(v); return Number.isFinite(x) ? x : undefined }
-function bool(v){ return String(v).toLowerCase()==='true' }
-function clean(obj){
-  if (obj == null) return obj;
-  if (Array.isArray(obj)) return obj.map(clean);
-  if (typeof obj === 'object'){
-    const r = {};
-    for (const [k,v] of Object.entries(obj)){
-      if (v === undefined || v === null || v === '') continue;
-      r[k] = (typeof v === 'object') ? clean(v) : v;
-    }
-    return r;
-  }
-  return obj;
-}
 
 $('go').onclick = async () => {
-  const sig = clean({
-    topic: ($('topic').value || '').trim(),
-    geo: ($('geo').value || '').trim(),
-    audience: ($('audience').value || '').trim(),
-    posts_last_30d: num($('posts30').value),
-    posting_days_last_30d: num($('days30').value),
-    niche_hashtag_ratio: num($('nicheRatio').value),
-    avg_hashtags_per_post: num($('avgTags').value),
-    format_mix: clean({
-      reels: num($('mixReels').value),
-      photos: num($('mixPhotos').value),
-      carousels: num($('mixCar').value)
-    }),
-    cover_text_ratio: num($('coverRatio').value),
-    bio_has_offer: bool($('bioOffer').value),
-    bio_first_line_hook: bool($('bioHook').value),
-    link_visible: bool($('linkVisible').value),
-    hook_rate: num($('hookRate').value),
-    cta_rate: num($('ctaRate').value)
-  });
-
-  const body = clean({
-    handle: ($('handle').value || '@yourname').trim(),
+  const body = {
+    handle: $('handle').value.trim() || '@yourname',
     platform: $('platform').value,
     goal: $('goal').value,
-    signals: Object.keys(sig||{}).length ? sig : undefined
-  });
-
-  out.textContent = 'Calculating…';
-  try{
-    const r = await fetch('/api/audit2', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(body),
-      cache:'no-store'
-    });
-    const text = await r.text();
-    if(!r.ok){ out.textContent = `Error ${r.status}:\n${text}`; return; }
-    let data; try{ data = JSON.parse(text) }catch{ out.textContent = text; return; }
-    document.getElementById('reportBox').innerHTML = renderReport(data);
-    attachPrint();
-  }catch(e){ out.textContent = 'Network error: '+ String(e); }
-};
-</script>
+    signals: {
+      topic: ($('topic').value || '').trim(),
+      geo: ($('geo').value || '').trim(),
+      audience: ($('audience').value || '').trim(),
+      posts_last_30d: num($('posts30').value),
+      posting_days_last_30d: num($('days30').value),
+      niche_hashtag_ratio: num($('nicheRatio').value),
+      avg_hashtags_per_post: num($('avgTags').value),
+      format_mix: { reels: num($('mixReels').value), photos: num($('mixPhotos').value), carousels: num($('mixCar').value) },
+      cover_text_ratio: num($('coverRatio').value),
+      bio_has_offer: bool($('bioOffer').value),
+      bio_first_line_hook: bool($('bioHook').value),
+      link_visible: bool($('linkVisible').value),
+      hook_rate: num($('hookRate').value),
+      cta_rate: num($('ctaRate').value)
+    }
+  };
 
   out.textContent = 'Calculating…';
   try{
@@ -228,19 +171,15 @@ function renderReport(d){
     return `<div class="panel"><h3 style="margin:0 0 6px">${escapeHtml(k)}</h3>${items?`<ul>${items}</ul>`:'<p class="muted">—</p>'}</div>`;
   }).join('') : '';
 
-  /* Fallback actions if API returned none */
   const sig = d.profile?.signals || {};
   const fallbackActions = [
     `Post 5x this week in ${sig.topic || 'your niche'} (Reels 3, Photos 1, Carousel 1).`,
     `Write 9 hook variants and A/B test 3 per post (first 12 words).`,
     `Add explicit CTA in every post (comment a/b, save checklist, DM keyword).`,
     `Refresh covers: readable text on ${(sig.cover_text_ratio!=null?Math.round(sig.cover_text_ratio*100):'60')}%+ posts.`,
-    `Build 2 hashtag clusters (niche + geo ${sig.geo ? '('+sig.geo+')' : ''}) and rotate per post.`,
+    `Build 2 hashtag clusters (niche + geo ${sig.geo ? '('+sig.geo+')' : ''}) and rotate.`
   ];
-  const actionsList = (Array.isArray(d.actions_next7days) && d.actions_next7days.length)
-    ? d.actions_next7days
-    : fallbackActions;
-
+  const actionsList = (Array.isArray(d.actions_next7days) && d.actions_next7days.length) ? d.actions_next7days : fallbackActions;
   const actions = actionsList.map(a=>`<li>${escapeHtml(a)}</li>`).join('');
   const hooks = (d.ready_to_copy?.hooks||[]).map(h=>`<code>${escapeHtml(h)}</code>`).join('');
   const tags  = (d.ready_to_copy?.hashtags||[]).map(t=>`<span class="pill">#${escapeHtml(t.replace(/^#/,''))}</span>`).join('');
@@ -249,7 +188,6 @@ function renderReport(d){
     <h2>Report for <span class="pill">${escapeHtml(d.profile?.handle||'@yourname')}</span> · ${escapeHtml(d.profile?.platform||'')}</h2>
     <p class="muted">Goal: ${escapeHtml(d.profile?.goal||'')}</p>
     <div class="score-row">${scoreRow}</div>
-
     <div class="grid2">
       <section class="panel">
         <h3 style="margin:0 0 6px">Findings</h3>
@@ -257,7 +195,7 @@ function renderReport(d){
       </section>
       <section class="panel">
         <h3 style="margin:0 0 6px">Next 7 Days</h3>
-        <ul>${actions}</ul>
+        ${actions ? `<ul>${actions}</ul>`:'<p class="muted">No actions</p>'}
         ${hooks ? '<h3 style="margin:10px 0 6px">Ready-to-copy Hooks</h3>'+hooks:''}
         ${tags  ? '<div style="margin-top:8px">'+tags+'</div>':''}
         <div class="right" style="margin-top:10px"><button id="exportPdf">Export PDF</button></div>
@@ -266,7 +204,7 @@ function renderReport(d){
   `;
 }
 function attachPrint(){ const b=document.getElementById('exportPdf'); if(b) b.onclick=()=>window.print(); }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 </script>
 </body>
 </html>
