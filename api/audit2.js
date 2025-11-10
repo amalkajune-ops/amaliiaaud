@@ -1,5 +1,6 @@
-// /api/audit2.js — production
+// /api/audit2.js — robust version with clear errors
 export default async function handler(req, res) {
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -11,7 +12,12 @@ export default async function handler(req, res) {
     if (!handle) return res.status(400).json({ error: 'Missing handle' });
 
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: 'Server missing OPENAI_API_KEY' });
+    if (!apiKey) {
+      return res.status(500).json({
+        error: 'Server missing OPENAI_API_KEY',
+        hint: 'Add it in Vercel → Project → Settings → Environment Variables → OPENAI_API_KEY'
+      });
+    }
 
     const system = `
 You are Amaliia — a sharp, no-fluff social profile auditor (luxury Miami vibe).
@@ -31,6 +37,7 @@ Return STRICT JSON with:
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
+      // важно: без кеша и с явной моделью
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         temperature: 0.4,
@@ -39,16 +46,43 @@ Return STRICT JSON with:
           { role: 'system', content: system },
           { role: 'user', content: `Platform: ${platform}\nHandle: ${handle}\nGoal: ${goal}` }
         ]
-      })
+      }),
+      cache: 'no-store'
     });
+
+    // если OpenAI вернул ошибку — покажем её явно
+    if (!r.ok) {
+      const text = await r.text().catch(() => '(no body)');
+      return res.status(r.status).json({
+        error: 'OpenAI API error',
+        status: r.status,
+        body: safeJson(text)
+      });
+    }
 
     const data = await r.json();
     const content = data?.choices?.[0]?.message?.content;
-    if (!content) return res.status(502).json({ error: 'LLM empty response', raw: data });
+    if (!content) {
+      return res.status(502).json({ error: 'LLM empty response', raw: data });
+    }
 
-    const json = JSON.parse(content);
+    // иногда модель всё равно шлёт строку невалидного JSON → ловим
+    let json;
+    try { json = JSON.parse(content); }
+    catch(e) {
+      return res.status(502).json({
+        error: 'LLM returned non-JSON',
+        sample: content?.slice?.(0, 500)
+      });
+    }
+
     return res.status(200).json({ profile: { handle, platform, goal }, ...json });
   } catch (e) {
     return res.status(500).json({ error: 'Server error', detail: String(e) });
   }
+}
+
+// helper: попытаться распарсить строку в JSON, иначе вернуть строку
+function safeJson(s) {
+  try { return JSON.parse(s); } catch { return String(s); }
 }
