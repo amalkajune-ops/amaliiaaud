@@ -295,6 +295,41 @@ function renderReport(d){
   `;
 }
 function attachPrint(){ const b=document.getElementById('exportPdf'); if(b) b.onclick=()=>window.print(); }
+function renderPlan(plan){
+  if (!Array.isArray(plan) || !plan.length) return '';
+  const rows = plan.map(p => `
+    <tr>
+      <td>${p.day ?? ''}</td>
+      <td>${escapeHtml(p.post_type||'')}</td>
+      <td>${escapeHtml(p.angle||'')}</td>
+      <td><code>${escapeHtml(p.hook||'')}</code></td>
+      <td>${(p.storyboard||[]).map(s=>`• ${escapeHtml(s)}`).join('<br>')}</td>
+      <td>${(p.caption_outline||[]).map(s=>`• ${escapeHtml(s)}`).join('<br>')}</td>
+      <td><strong>${escapeHtml(p.cta||'')}</strong></td>
+      <td>${(p.hashtag_cluster||[]).map(t=>`#${escapeHtml(t)}`).join(' ')}</td>
+      <td>${escapeHtml(p.time_window||'')}</td>
+      <td>${escapeHtml(p.kpi||'')}</td>
+    </tr>
+  `).join('');
+
+  return `
+    <section class="panel" style="margin-top:12px">
+      <h3 style="margin:0 0 6px">7-day plan</h3>
+      <div style="overflow:auto">
+        <table style="width:100%;border-collapse:separate;border-spacing:0 6px;font-size:.95rem">
+          <thead style="color:#a8b3bd;text-align:left">
+            <tr>
+              <th>Day</th><th>Type</th><th>Angle</th><th>Hook</th>
+              <th>Storyboard</th><th>Caption</th><th>CTA</th>
+              <th>Hashtags</th><th>Time</th><th>KPI</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
 </script>
 </body>
 </html>
