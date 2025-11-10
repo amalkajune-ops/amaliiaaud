@@ -1,13 +1,12 @@
 // api/audit2.js
 
-// ЯВНО ГОВОРИМ Vercel: это Node.js serverless, не Edge
+// Явно указываем Node.js-функцию (НЕ edge):
 export const config = {
-  runtime: 'nodejs18.x',   // или 'nodejs20.x' если у вас 20й
-  regions: ['iad1'],       // опционально, но стабильнее на Вост. берегу
+  runtime: 'nodejs',
 };
 
 export default async function handler(req, res) {
-  // Простая CORS поддержка
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -21,14 +20,13 @@ export default async function handler(req, res) {
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      // Эта ветка отработает ТОЛЬКО если переменная реально не выставлена в данной среде (Preview/Prod)
       return res.status(500).json({
         error: 'Server missing OPENAI_API_KEY',
-        hint: 'Vercel → Project → Settings → Environment Variables → add OPENAI_API_KEY for Preview & Production, then redeploy.'
+        hint: 'Add OPENAI_API_KEY for BOTH Preview and Production in Vercel → Settings → Environment Variables, then Redeploy.',
       });
     }
 
-    const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini'; // можно переопределить из Dashboard
+    const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
     const system = `
 You MUST return a concrete 7-day content grid. No generic advice.
@@ -52,7 +50,7 @@ Return JSON with an extra key:
 RULES:
 - Domain lock: every angle/hook/hashtag must reflect signals.topic (fitness / luxury / calisthenics etc.).
 - No vague verbs without the exact "how".
-- Ban words “ultimate”, “secrets”, “journey”, “unlock” unless tied to a concrete angle.
+- Ban “ultimate”, “secrets”, “journey”, “unlock” unless tied to a concrete angle.
 - Hashtags: 5–9 items, mostly niche (10k–100k). If user tags are too broad, replace and explain why in findings.hashtags.
 - CTAs: one per post (action-first: “Comment A/B…”, “Save this…”, “DM 'PLAN'…”).
 - KPIs: set a small numeric target per day.
@@ -86,7 +84,6 @@ Goal: ${goal}
 Signals JSON:
 ${JSON.stringify(signals ?? {}, null, 2)}`;
 
-    // Вызов OpenAI
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
@@ -103,25 +100,19 @@ ${JSON.stringify(signals ?? {}, null, 2)}`;
 
     const raw = await r.text().catch(() => '');
     if (!r.ok) {
-      // Покажем клиенту, что именно ответил OpenAI (часто 401/429/400)
       let parsed; try { parsed = JSON.parse(raw) } catch { parsed = raw }
       return res.status(r.status).json({ error: 'OpenAI API error', status: r.status, body: parsed });
     }
 
     let data; try { data = JSON.parse(raw) } catch { data = null }
     const content = data?.choices?.[0]?.message?.content;
-    if (!content) {
-      return res.status(502).json({ error: 'LLM empty response', raw: data || raw });
-    }
+    if (!content) return res.status(502).json({ error: 'LLM empty response', raw: data || raw });
 
     let json; try { json = JSON.parse(content); }
-    catch (e) {
-      return res.status(502).json({ error: 'LLM returned non-JSON', sample: String(content).slice(0, 800) });
-    }
+    catch (e) { return res.status(502).json({ error: 'LLM returned non-JSON', sample: String(content).slice(0, 800) }); }
 
     return res.status(200).json({ profile: { handle, platform, goal, signals }, ...json });
   } catch (e) {
-    // Лог в Vercel (увидите в "Functions → Logs")
     console.error('audit2 failure:', e);
     return res.status(500).json({ error: 'Server error', detail: String(e) });
   }
