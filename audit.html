@@ -6,7 +6,8 @@
 <title>AI Profile Audit — demo</title>
 <style>
   :root{--bg:#0b0c10;--panel:rgba(255,255,255,.06);--panel2:rgba(255,255,255,.12);--text:#e9eef3;--muted:#a8b3bd;--accent:#c1ff72;--accent2:#7df9ff;--radius:16px}
-  *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif}
   .container{max-width:980px;margin:0 auto;padding:24px}
   h1{margin:0 0 16px} h2{margin:0 0 10px}
   .card{background:var(--panel);border:1px solid var(--panel2);border-radius:var(--radius);padding:16px;margin:14px 0}
@@ -72,7 +73,6 @@
         </label>
       </div>
 
-      <!-- Lazy inputs -->
       <div class="grid" style="margin-top:10px">
         <label>
           Posting frequency (last 30d)
@@ -148,7 +148,6 @@
       </div>
     </div>
 
-    <!-- OUTPUT -->
     <div class="card" id="reportBox">
       <pre id="out" class="muted">Ready…</pre>
     </div>
@@ -158,7 +157,7 @@
 const $ = (id)=>document.getElementById(id);
 const out = $('out');
 
-/* DEMО PREFILL */
+/* DEMO PREFILL */
 $('demo').onclick = () => {
   $('platform').value = 'Instagram';
   $('handle').value = '@ampirdol';
@@ -203,22 +202,16 @@ $('go').onclick = async () => {
       ...cadence,
       niche_hashtag_ratio: numOr(tagRatioMap[$('tagStyle').value]),
       avg_hashtags_per_post: num($('avgTags').value),
-
       hashtags_entered: parseTags($('hashtagsInput').value),
-
       bio_text: ($('bioText').value || '').trim(),
       cta_rate: numOr(ctaMap[$('ctaFreq').value]),
-
       cover_text_ratio: num($('coverRatio').value),
       hook_rate: num($('hookRate').value),
-
       format_mix: {
         reels: num($('mixReels').value),
         photos: num($('mixPhotos').value),
         carousels: num($('mixCar').value)
       },
-
-      // optional explicit flags
       bio_has_offer: boolOrNull($('bioOffer').value),
       bio_first_line_hook: boolOrNull($('bioHook').value),
       link_visible: boolOrNull($('linkVisible').value),
@@ -241,17 +234,11 @@ $('go').onclick = async () => {
   }catch(e){ out.textContent = 'Network error: '+ String(e); }
 };
 
-function parseTags(s){
-  return (s||'')
-    .split(/[,\s]+/)
-    .map(t=>t.trim())
-    .filter(Boolean)
-    .map(t=>t.startsWith('#')?t.slice(1):t.toLowerCase());
-}
+function parseTags(s){return (s||'').split(/[,\s]+/).map(t=>t.trim()).filter(Boolean).map(t=>t.startsWith('#')?t.slice(1):t.toLowerCase());}
 function num(v){ const x = Number(v); return Number.isFinite(x) ? x : undefined }
 function numOr(v){ const x = Number(v); return Number.isFinite(x) ? x : undefined }
 function boolOrNull(v){ if(!v) return undefined; return String(v).toLowerCase()==='true' }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
 function renderReport(d){
   const scoreRow = Object.entries(d.scores||{}).map(([k,v])=>`<span class="chip"><strong>${k}</strong> ${v}%</span>`).join('');
@@ -259,8 +246,6 @@ function renderReport(d){
     const items = (arr||[]).map(i=>`<li>${escapeHtml(i)}</li>`).join('');
     return `<div class="panel"><h3 style="margin:0 0 6px">${escapeHtml(k)}</h3>${items?`<ul>${items}</ul>`:'<p class="muted">—</p>'}</div>`;
   }).join('') : '';
-
-  // fallback actions if API gave none
   const sig = d.profile?.signals || {};
   const fallbackActions = [
     `Post 5× this week in ${sig.topic || 'your niche'} (Reels 3, Photos 1, Carousel 1).`,
@@ -278,58 +263,30 @@ function renderReport(d){
     <h2>Report for <span class="pill">${escapeHtml(d.profile?.handle||'@yourname')}</span> · ${escapeHtml(d.profile?.platform||'')}</h2>
     <p class="muted">Goal: ${escapeHtml(d.profile?.goal||'')}</p>
     <div class="score-row">${scoreRow}</div>
-
     <div class="grid2">
+      <section class="panel"><h3>Findings</h3>${findings || '<p class="muted">—</p>'}</section>
       <section class="panel">
-        <h3 style="margin:0 0 6px">Findings</h3>
-        ${findings || '<p class="muted">—</p>'}
-      </section>
-      <section class="panel">
-        <h3 style="margin:0 0 6px">Next 7 Days</h3>
+        <h3>Next 7 Days</h3>
         ${actions ? `<ul>${actions}</ul>`:'<p class="muted">No actions</p>'}
         ${hooks ? '<h3 style="margin:10px 0 6px">Ready-to-copy Hooks</h3>'+hooks:''}
         ${tags  ? '<div style="margin-top:8px">'+tags+'</div>':''}
         <div class="right" style="margin-top:10px"><button id="exportPdf">Export PDF</button></div>
       </section>
     </div>
+    ${renderPlan(d.plan_7d || [])}
   `;
 }
-function attachPrint(){ const b=document.getElementById('exportPdf'); if(b) b.onclick=()=>window.print(); }
+
 function renderPlan(plan){
   if (!Array.isArray(plan) || !plan.length) return '';
-  const rows = plan.map(p => `
+  const rows = plan.map(p=>`
     <tr>
-      <td>${p.day ?? ''}</td>
-      <td>${escapeHtml(p.post_type||'')}</td>
-      <td>${escapeHtml(p.angle||'')}</td>
-      <td><code>${escapeHtml(p.hook||'')}</code></td>
+      <td>${p.day??''}</td><td>${escapeHtml(p.post_type||'')}</td>
+      <td>${escapeHtml(p.angle||'')}</td><td><code>${escapeHtml(p.hook||'')}</code></td>
       <td>${(p.storyboard||[]).map(s=>`• ${escapeHtml(s)}`).join('<br>')}</td>
       <td>${(p.caption_outline||[]).map(s=>`• ${escapeHtml(s)}`).join('<br>')}</td>
       <td><strong>${escapeHtml(p.cta||'')}</strong></td>
       <td>${(p.hashtag_cluster||[]).map(t=>`#${escapeHtml(t)}`).join(' ')}</td>
-      <td>${escapeHtml(p.time_window||'')}</td>
-      <td>${escapeHtml(p.kpi||'')}</td>
-    </tr>
-  `).join('');
-
-  return `
-    <section class="panel" style="margin-top:12px">
-      <h3 style="margin:0 0 6px">7-day plan</h3>
-      <div style="overflow:auto">
-        <table style="width:100%;border-collapse:separate;border-spacing:0 6px;font-size:.95rem">
-          <thead style="color:#a8b3bd;text-align:left">
-            <tr>
-              <th>Day</th><th>Type</th><th>Angle</th><th>Hook</th>
-              <th>Storyboard</th><th>Caption</th><th>CTA</th>
-              <th>Hashtags</th><th>Time</th><th>KPI</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    </section>
-  `;
-}
-</script>
-</body>
-</html>
+      <td>${escapeHtml(p.time_window||'')}</td><td>${escapeHtml(p.kpi||'')}</td>
+    </tr>`).join('');
+  return `<section class="panel" style="margin-top:12px"><h3>7
