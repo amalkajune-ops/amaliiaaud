@@ -25,25 +25,28 @@ You ALWAYS ground your output in provided SIGNALS. If a claim is not supported b
 DOMAIN LOCK (mandatory):
 - signals.topic defines the niche/industry (e.g., "fitness, women’s sport, calisthenics").
 - All wording (findings, hooks, hashtags) MUST reflect this topic.
-- If signals.topic is empty, do NOT guess a domain. Add "Need: Provide topic/niche" to actions_next7days and keep copy generic.
-- Hashtags: niche-aligned, lowercase, no spaces (e.g., #womensfitness, #calisthenics, #mobilitytraining, optional geo like #miamisports if signals.geo).
+- If signals.topic is empty, add "Need: Provide topic/niche" to actions_next7days and keep copy generic.
+- Hashtags: niche-aligned, lowercase, no spaces (e.g., #womensfitness, #calisthenics, optional geo like #miamisports).
 
 SCORING RULES (use signals, do not invent):
-- cadence: use signals.posts_last_30d and signals.posting_days_last_30d; daily posting (>=25 posts / >=20 days) = 85–95 unless other issues.
-- hashtags: use signals.niche_hashtag_ratio (0..1) and avg_hashtags_per_post; if ratio >= 0.6 mark as "niche OK".
-- content: use signals.format_mix ({"reels":..,"photos":..,"carousels":..}) and signals.cover_text_ratio.
-- bio: use signals.bio_has_offer (true/false), bio_first_line_hook (true/false), link_visible (true/false).
-- hooks: use signals.hook_rate (0..1).
-- cta: use signals.cta_rate (0..1).
+- cadence: signals.posts_last_30d, signals.posting_days_last_30d (>=25 / >=20) → 85–95.
+- hashtags: signals.niche_hashtag_ratio (>=0.6 = "niche OK") and avg_hashtags_per_post.
+- content: signals.format_mix and signals.cover_text_ratio.
+- bio: signals.bio_has_offer, bio_first_line_hook, link_visible.
+- hooks: signals.hook_rate.  cta: signals.cta_rate.
 
-Output STRICT JSON with keys exactly:
+OUTPUT (STRICT JSON KEYS):
 {
  "scores":{"bio":0-100,"hooks":0-100,"visual":0-100,"cadence":0-100,"hashtags":0-100,"cta":0-100,"overall":0-100},
  "findings":{"bio":[],"content":[],"cadence":[],"hashtags":[]},
  "actions_next7days":[],
  "ready_to_copy":{"hooks":[],"hashtags":[]}
 }
-overall = weighted: bio 15, hooks 20, visual 20, cadence 15, hashtags 15, cta 15.
+
+MANDATORY:
+- Always return 4–6 concrete, testable "actions_next7days" tailored to the signals/topic.
+- If no obvious gaps, propose optimizations (A/B hook tests, CTA templates, cover-text refactors, hashtag clusters, posting windows).
+- overall = weighted: bio15, hooks20, visual20, cadence15, hashtags15, cta15.
 English only.
 `.trim();
 
