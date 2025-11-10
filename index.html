@@ -1,39 +1,45 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Amaliia AI - Профиль‑аудит за секунды</title>
-  <meta name="description" content="AI-аудит профилей: конкретные метрики, чек-листы и готовые хук‑формулы под твой стиль.">
-  <link rel="stylesheet" href="styles.css" />
+  <title>Amaliia AI — Profile Audit in Seconds</title>
+  <meta name="description" content="AI profile audits with concrete metrics, checklists, and ready-to-use hooks — in your voice." />
+  <!-- Если у тебя есть общий styles.css — можно оставить эту строку. Иначе этот файл не обязателен. -->
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    /* Минимальные стили, чтобы кнопка и секции были видны даже без styles.css */
+    :root{--bg:#0b0c10;--panel:rgba(255,255,255,.06);--panel2:rgba(255,255,255,.12);--text:#e9eef3;--muted:#a8b3bd;--accent:#c1ff72;--accent2:#7df9ff;--radius:16px}
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1120px;margin:0 auto;padding:0 20px}
+    .header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg, rgba(11,12,16,.85), rgba(11,12,16,0));backdrop-filter:saturate(160%) blur(8px)}
+    .nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+    .nav-links{display:flex;gap:18px;list-style:none;margin:0;padding:0}
+    .nav-links a{opacity:.85}.nav-links a:hover{opacity:1}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;border-radius:999px;border:1px solid var(--panel2);background:transparent;cursor:pointer;transition:.2s;font-weight:700}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:linear-gradient(120deg,var(--accent) 0%, var(--accent2) 100%);color:#0b0c10;border:none}
+    .btn-ghost{background:transparent}
+    .hero{padding:72px 0 40px}
+    .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center}
+    .subtitle{color:var(--muted);font-size:1.05rem;max-width:58ch}
+    .glass{background:var(--panel);border:1px solid var(--panel2);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .cta-row{display:flex;gap:12px;margin:18px 0 0}
+    .pill{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--panel2);font-size:.9rem;color:var(--muted);margin-right:8px}
+    .section{padding:56px 0}
+    .muted{color:var(--muted)}
+    @media (max-width: 920px){ .hero-grid{grid-template-columns:1fr} }
+  </style>
 </head>
 <body>
   <header class="header" id="top">
     <nav class="nav container">
-      <a class="brand" href="#top">
-        <img src="assets/logo.svg" alt="Amaliia AI" class="logo" />
-        <span>Amaliia&nbsp;AI</span>
-      </a>
-      <button class="nav-toggle" aria-label="Меню">
-        <span></span><span></span><span></span>
-      </button>
+      <a class="brand" href="#top">Amaliia&nbsp;AI</a>
       <ul class="nav-links">
-        <li><a href="#features">Возможности</a></li>
-        <li><a href="#how">Как работает</a></li>
-        <li><a href="#demo">Демо</a></li>
-        <li><a href="#pricing">Цены</a></li>
-        <!-- Add this to index.html (hero, navbar, etc.) -->
-<a href="/audit.html" class="btn-audit">Try AI Profile Audit →</a>
-
-<style>
-.btn-audit{
-  display:inline-block;padding:12px 18px;border-radius:12px;
-  background:linear-gradient(120deg,#c1ff72,#7df9ff);color:#0b0c10;
-  font-weight:700;text-decoration:none;border:none
-}
-.btn-audit:hover{filter:brightness(1.05)}
-</style>
-        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="/audit.html" class="btn btn-primary">Try AI Profile Audit →</a></li>
       </ul>
     </nav>
   </header>
@@ -41,169 +47,49 @@
   <main>
     <section class="hero container">
       <div class="hero-grid">
-        <div class="hero-copy">
-          <h1>Профиль‑аудит <span class="accent">за секунды</span> в твоём стиле</h1>
-          <p class="subtitle">ИИ считает метрики, сравнивает с эталонами и выдаёт рекомендации в стиле AMPIRDOL: коротко, по делу, с готовыми хуками и CTA.</p>
+        <div>
+          <h1>Profile audit <span class="pill">in seconds</span> with your vibe</h1>
+          <p class="subtitle">AI scores your bio, hooks, visuals, cadence, hashtags, and CTA — then gives a punchy 7-day plan and ready-to-use hooks. No fluff.</p>
           <div class="cta-row">
-            <a href="#demo" class="btn primary">Попробовать демо</a>
-            <a href="#features" class="btn ghost">Что внутри</a>
-          </div>
-          <div class="trust-row">
-            <div class="pill">RAG «Amaliia Brain»</div>
-            <div class="pill">IG • TikTok • YouTube</div>
-            <div class="pill">PDF‑отчёт за 1 клик</div>
+            <!-- ВОТ ЭТА КНОПКА ведёт прямо на страницу аудита -->
+            <a href="/audit.html" class="btn btn-primary">Run a free audit</a>
+            <a href="#features" class="btn btn-ghost">See how it works</a>
           </div>
         </div>
-        <div class="hero-card glass">
-          <div class="card-head">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+        <div class="glass" style="padding:16px">
+          <p class="muted">Preview</p>
+          <div style="margin-top:8px">
+            <div class="pill">Instagram</div>
+            <div class="pill">Hooks 81%</div>
+            <div class="pill">Visual 69%</div>
+            <div class="pill">CTA 52%</div>
           </div>
-          <div class="card-body">
-            <div class="score">
-              <div class="ring" role="img" aria-label="Общий скор 78%">78%</div>
-              <div>
-                <h3>Overall</h3>
-                <p class="muted">Био 72 · Хуки 81 · Визуал 69 · Ритм 60</p>
-              </div>
-            </div>
-            <ul class="checks">
-              <li class="ok">Хук в первой строке описания</li>
-              <li class="warn">Обложки без текста (0–3 слова)</li>
-              <li class="bad">CTA просадки - нет конкретного действия</li>
-            </ul>
-            <div class="suggest">
-              <h4>Готово к копипасту</h4>
-              <code>«3 luxury‑фишки, которые продают без продаж»</code>
-              <code>«Я ошибалась про Reels - вот что реально растит»</code>
-            </div>
+          <div style="margin-top:12px">
+            <p class="muted">Examples</p>
+            <code style="display:block;padding:10px;border-radius:8px;background:#0e1016;border:1px solid rgba(255,255,255,.08);white-space:normal">“3 luxury moves that sell without selling”</code>
+            <code style="display:block;padding:10px;border-radius:8px;background:#0e1016;border:1px solid rgba(255,255,255,.08);white-space:normal">“I was wrong about Reels — here’s what actually grows”</code>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="features container" id="features">
-      <h2>Что умеет</h2>
-      <div class="grid-3">
-        <article class="feature glass">
-          <h3>Умные метрики</h3>
-          <p>ER, ритм, контент‑микс, консистентность визуала, плотность хештегов - всё на одной панели.</p>
-        </article>
-        <article class="feature glass">
-          <h3>RAG «твои мозги»</h3>
-          <p>Подмешиваем твои эталонные аудиты и правила — рекомендации звучат как ты.</p>
-        </article>
-        <article class="feature glass">
-          <h3>Готовые выходы</h3>
-          <p>Хуки, темы, сетка на неделю, пресеты обложек, PDF‑экспорт.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="how container" id="how">
-      <h2>Как это работает</h2>
-      <ol class="timeline">
-        <li><span>1</span> Вводишь @handle и цель (рост, лиды, имидж)</li>
-        <li><span>2</span> Сбор данных: публично или через импорт инсайтов</li>
-        <li><span>3</span> Считаем метрики + сверяем с чек‑листом</li>
-        <li><span>4</span> Генерим отчёт и короткий план на 7 дней</li>
-      </ol>
-    </section>
-
-    <section class="demo container" id="demo">
-      <h2>Мини‑демо</h2>
-      <p class="muted">Введите тестовый @handle и посмотрите пример отчёта. (Демо статичное для макета.)</p>
-      <form class="demo-form glass" onsubmit="return demoReport(event)">
-        <div class="fields">
-          <label>
-            Платформа
-            <select id="platform">
-              <option>Instagram</option>
-              <option>TikTok</option>
-              <option>YouTube</option>
-            </select>
-          </label>
-          <label>
-            @handle
-            <input id="handle" type="text" placeholder="@yourname" required />
-          </label>
-          <label>
-            Цель
-            <select id="goal">
-              <option>Рост</option>
-              <option>Лиды</option>
-              <option>UGC</option>
-              <option>Люкс‑имидж</option>
-            </select>
-          </label>
-        </div>
-        <button class="btn primary">Сгенерировать отчёт</button>
-      </form>
-
-      <div id="report" class="report glass hidden" aria-live="polite"></div>
-    </section>
-
-    <section class="pricing container" id="pricing">
-      <h2>Тарифы</h2>
-      <div class="grid-3">
-        <article class="price-card glass">
-          <h3>Free</h3>
-          <p class="muted">1 профиль · базовый скор</p>
-          <div class="price">$0</div>
-          <ul>
-            <li>Общий скор</li>
-            <li>3 рекомендации</li>
-            <li>Демо отчёта</li>
-          </ul>
-          <a href="#demo" class="btn ghost">Попробовать</a>
-        </article>
-        <article class="price-card glass featured">
-          <h3>Pro</h3>
-          <p class="muted">До 5 профилей · полный отчёт</p>
-          <div class="price">$19<span>/мес</span></div>
-          <ul>
-            <li>Все метрики и чек‑лист</li>
-            <li>20 хук‑идей + сетка на неделю</li>
-            <li>PDF‑экспорт</li>
-          </ul>
-          <a href="#" class="btn primary">Оформить</a>
-        </article>
-        <article class="price-card glass">
-          <h3>Agency</h3>
-          <p class="muted">Команда и белая метка</p>
-          <div class="price">Custom</div>
-          <ul>
-            <li>Мульти‑клиенты</li>
-            <li>RAG под бренд</li>
-            <li>Приоритетная поддержка</li>
-          </ul>
-          <a href="#" class="btn ghost">Связаться</a>
-        </article>
-      </div>
-    </section>
-
-    <section class="faq container" id="faq">
-      <h2>FAQ</h2>
-      <details class="glass">
-        <summary>Это реально работает?</summary>
-        <p>Да: загружаем 15–30 твоих эталонных разборов, правила и тон. Затем RAG подмешивает их в каждую рекомендацию.</p>
-      </details>
-      <details class="glass">
-        <summary>Нужен доступ к аккаунту?</summary>
-        <p>Нет для базовой версии. Для глубоких метрик — импорт инсайтов или OAuth для бизнес‑аккаунта.</p>
-      </details>
-      <details class="glass">
-        <summary>PDF‑отчёт?</summary>
-        <p>Один клик из отчёта. Можно отправить клиенту или в Notion.</p>
-      </details>
+    <section id="features" class="section container">
+      <h2>What you get</h2>
+      <ul>
+        <li>Smart scores for bio, hooks, visuals, cadence, hashtags, CTA</li>
+        <li>Signals-driven, niche-locked recommendations (no guessing)</li>
+        <li>7-day action plan + ready-to-copy hooks & tags</li>
+        <li>One-click PDF export</li>
+      </ul>
     </section>
   </main>
 
-  <footer class="footer container">
-    <p>© <span id="year"></span> Amaliia AI. Made for creators из Майами.</p>
+  <footer class="section container">
+    <p class="muted">© <span id="year"></span> Amaliia AI, Miami.</p>
   </footer>
 
-  <script src="script.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
