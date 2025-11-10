@@ -11,7 +11,8 @@
   h1{margin:0 0 16px} h2{margin:0 0 10px}
   .card{background:var(--panel);border:1px solid var(--panel2);border-radius:var(--radius);padding:16px;margin:14px 0}
   label{display:grid;gap:6px;font-size:.95rem}
-  input,select,button{padding:10px;border-radius:10px;border:1px solid #333;background:#111318;color:var(--text)}
+  input,select,textarea,button{padding:10px;border-radius:10px;border:1px solid #333;background:#111318;color:var(--text)}
+  textarea{min-height:62px; resize:vertical}
   button.primary{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#0b0c10;border:none;font-weight:700;cursor:pointer}
   .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr}
   .row{display:flex;gap:10px;flex-wrap:wrap}
@@ -21,7 +22,7 @@
   .chip{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px}
-  code{display:block;padding:8px 10px;border-radius:8px;background:#0e1016;border:1px solid rgba(255,255,255,.08);margin:6px 0 0}
+  code{display:block;padding:8px 10px;border-radius:8px;background:#0e1016;border:1px solid rgba(255,255,255,.08);margin:6px 0 0;white-space:normal}
   .right{display:flex;justify-content:flex-end}
   details{margin-top:8px}
   @media (max-width:860px){ .grid{grid-template-columns:1fr 1fr}; .grid2{grid-template-columns:1fr} }
@@ -31,19 +32,25 @@
 <body>
   <div class="container">
     <h1>AI Profile Audit</h1>
-    <p class="muted">Enter a handle and goal. Optionally provide signals so the model doesn’t guess.</p>
+    <p class="muted">Enter handle & goal. Use the quick checkboxes — the model will not guess.</p>
 
+    <!-- FORM -->
     <div class="card">
       <div class="grid">
-        <label>Platform
+        <label>
+          Platform
           <select id="platform">
             <option>Instagram</option><option>TikTok</option><option>YouTube</option>
           </select>
         </label>
-        <label>@handle
+
+        <label>
+          @handle
           <input id="handle" placeholder="@yourname" />
         </label>
-        <label>Goal
+
+        <label>
+          Goal
           <select id="goal">
             <option>Growth</option><option>Leads</option><option>UGC</option><option>Iconic style</option>
           </select>
@@ -51,47 +58,87 @@
       </div>
 
       <div class="grid" style="margin-top:10px">
-        <label>Topic/Niche
+        <label>
+          Topic/Niche
           <input id="topic" placeholder="e.g., fitness, women’s sport, calisthenics" />
         </label>
-        <label>Geo (optional)
+        <label>
+          Geo (optional)
           <input id="geo" placeholder="e.g., Miami" />
         </label>
-        <label>Audience (optional)
+        <label>
+          Audience (optional)
           <input id="audience" placeholder="e.g., women 18–30" />
         </label>
       </div>
 
+      <!-- Lazy inputs -->
+      <div class="grid" style="margin-top:10px">
+        <label>
+          Posting frequency (last 30d)
+          <select id="cadenceSelect">
+            <option value="">Select…</option>
+            <option value="daily">Daily (25–30 posts / 20–30 days)</option>
+            <option value="often">3–5×/week (12–20 posts)</option>
+            <option value="rare">1–2×/week (4–8 posts)</option>
+            <option value="none">Almost none (0–3 posts)</option>
+          </select>
+        </label>
+
+        <label>
+          Hashtags: niche or broad?
+          <select id="tagStyle">
+            <option value="">Select…</option>
+            <option value="niche">Mostly niche (10–50k)</option>
+            <option value="mixed">Mixed</option>
+            <option value="broad">Mostly broad (500k+)</option>
+          </select>
+        </label>
+
+        <label>
+          Avg hashtags per post
+          <input id="avgTags" type="number" min="0" placeholder="e.g., 10–15" />
+        </label>
+      </div>
+
+      <div class="grid" style="margin-top:10px">
+        <label>
+          Sample hashtags (comma-separated)
+          <textarea id="hashtagsInput" placeholder="#miamiluxury, #calisthenicsgirls, #miamisports"></textarea>
+        </label>
+        <label>
+          Bio (paste your current bio)
+          <textarea id="bioText" placeholder="1st line hook + offer + link"></textarea>
+        </label>
+        <label>
+          Posts usually have CTA?
+          <select id="ctaFreq">
+            <option value="">Select…</option>
+            <option value="always">In every post</option>
+            <option value="often">Often (≈50%)</option>
+            <option value="rare">Rarely (&lt;20%)</option>
+            <option value="never">No CTA</option>
+          </select>
+        </label>
+      </div>
+
       <details>
-        <summary>Advanced signals (optional)</summary>
+        <summary>Advanced (optional)</summary>
         <div class="grid" style="margin-top:10px">
-          <label>Posts last 30d <input id="posts30" type="number" min="0" placeholder="30" /></label>
-          <label>Posting days last 30d <input id="days30" type="number" min="0" placeholder="28" /></label>
-          <label>Niche hashtag ratio (0..1) <input id="nicheRatio" type="number" step="0.01" min="0" max="1" placeholder="0.75" /></label>
-        </div>
-        <div class="grid" style="margin-top:10px">
-          <label>Avg hashtags per post <input id="avgTags" type="number" min="0" placeholder="12" /></label>
           <label>Cover text ratio (0..1) <input id="coverRatio" type="number" step="0.01" min="0" max="1" placeholder="0.6" /></label>
           <label>Hook rate (0..1) <input id="hookRate" type="number" step="0.01" min="0" max="1" placeholder="0.55" /></label>
+          <label>Format mix (reels/photos/carousels)
+            <div class="row">
+              <input id="mixReels" type="number" step="0.01" min="0" max="1" placeholder="0.7" style="width:33%">
+              <input id="mixPhotos" type="number" step="0.01" min="0" max="1" placeholder="0.2" style="width:33%">
+              <input id="mixCar" type="number" step="0.01" min="0" max="1" placeholder="0.1" style="width:33%">
+            </div>
+          </label>
         </div>
         <div class="grid" style="margin-top:10px">
-          <label>CTA rate (0..1) <input id="ctaRate" type="number" step="0.01" min="0" max="1" placeholder="0.35" /></label>
-          <label>Format mix (reels) <input id="mixReels" type="number" step="0.01" min="0" max="1" placeholder="0.7" /></label>
-          <label>Format mix (photos) <input id="mixPhotos" type="number" step="0.01" min="0" max="1" placeholder="0.2" /></label>
-        </div>
-        <div class="grid" style="margin-top:10px">
-          <label>Format mix (carousels) <input id="mixCar" type="number" step="0.01" min="0" max="1" placeholder="0.1" /></label>
-          <label>Bio has offer
-            <select id="bioOffer"><option value="true">true</option><option value="false">false</option></select>
-          </label>
-          <label>Bio first-line hook
-            <select id="bioHook"><option value="true">true</option><option value="false">false</option></select>
-          </label>
-        </div>
-        <div class="row" style="margin-top:10px">
-          <label>Link visible
-            <select id="linkVisible"><option value="true">true</option><option value="false">false</option></select>
-          </label>
+          <label>Bio has offer <select id="bioOffer"><option value="">—</option><option value="true">true</option><option value="false">false</option></select></label>
+          <label>First-line hook <select id="bioHook"><option value="">—</option><option value="true">true</option><option value="false">false</option></select></label>
+          <label>Link visible <select id="linkVisible"><option value="">—</option><option value="true">true</option><option value="false">false</option></select></label>
         </div>
       </details>
 
@@ -101,6 +148,7 @@
       </div>
     </div>
 
+    <!-- OUTPUT -->
     <div class="card" id="reportBox">
       <pre id="out" class="muted">Ready…</pre>
     </div>
@@ -110,19 +158,39 @@
 const $ = (id)=>document.getElementById(id);
 const out = $('out');
 
+/* DEMО PREFILL */
 $('demo').onclick = () => {
+  $('platform').value = 'Instagram';
   $('handle').value = '@ampirdol';
   $('goal').value = 'Growth';
-  $('topic').value = "Luxury Life-style, Miami vibe, Swag";
+  $('topic').value = "luxury lifestyle, miami vibe";
   $('geo').value = "Miami";
-  $('audience').value = "Women 18–35";
-  $('posts30').value = 30; $('days30').value = 28; $('nicheRatio').value = 0.75;
-  $('avgTags').value = 12; $('coverRatio').value = 0.6; $('hookRate').value = 0.55; $('ctaRate').value = 0.35;
+  $('audience').value = "women 18–35";
+  $('cadenceSelect').value = 'daily';
+  $('tagStyle').value = 'mixed';
+  $('avgTags').value = 12;
+  $('hashtagsInput').value = "#miamiluxury, #miamivibe, #luxurywomen, #miamifashion";
+  $('bioText').value = "Luxury life in Miami. Reviews, tips, and real talk.\n👇 Start here";
+  $('ctaFreq').value = 'often';
+  $('coverRatio').value = 0.6;
+  $('hookRate').value = 0.55;
   $('mixReels').value = 0.7; $('mixPhotos').value = 0.2; $('mixCar').value = 0.1;
   $('bioOffer').value = 'true'; $('bioHook').value = 'true'; $('linkVisible').value = 'true';
 };
 
 $('go').onclick = async () => {
+  const cadenceMap = {
+    daily: { posts_last_30d: 28, posting_days_last_30d: 25 },
+    often: { posts_last_30d: 16, posting_days_last_30d: 12 },
+    rare:  { posts_last_30d: 6,  posting_days_last_30d: 6  },
+    none:  { posts_last_30d: 1,  posting_days_last_30d: 1  },
+  };
+  const cadenceSel = $('cadenceSelect').value;
+  const cadence = cadenceMap[cadenceSel] || {};
+
+  const ctaMap = { always: 0.9, often: 0.5, rare: 0.2, never: 0.0 };
+  const tagRatioMap = { niche: 0.75, mixed: 0.5, broad: 0.2 };
+
   const body = {
     handle: $('handle').value.trim() || '@yourname',
     platform: $('platform').value,
@@ -131,17 +199,29 @@ $('go').onclick = async () => {
       topic: ($('topic').value || '').trim(),
       geo: ($('geo').value || '').trim(),
       audience: ($('audience').value || '').trim(),
-      posts_last_30d: num($('posts30').value),
-      posting_days_last_30d: num($('days30').value),
-      niche_hashtag_ratio: num($('nicheRatio').value),
+
+      ...cadence,
+      niche_hashtag_ratio: numOr(tagRatioMap[$('tagStyle').value]),
       avg_hashtags_per_post: num($('avgTags').value),
-      format_mix: { reels: num($('mixReels').value), photos: num($('mixPhotos').value), carousels: num($('mixCar').value) },
+
+      hashtags_entered: parseTags($('hashtagsInput').value),
+
+      bio_text: ($('bioText').value || '').trim(),
+      cta_rate: numOr(ctaMap[$('ctaFreq').value]),
+
       cover_text_ratio: num($('coverRatio').value),
-      bio_has_offer: bool($('bioOffer').value),
-      bio_first_line_hook: bool($('bioHook').value),
-      link_visible: bool($('linkVisible').value),
       hook_rate: num($('hookRate').value),
-      cta_rate: num($('ctaRate').value)
+
+      format_mix: {
+        reels: num($('mixReels').value),
+        photos: num($('mixPhotos').value),
+        carousels: num($('mixCar').value)
+      },
+
+      // optional explicit flags
+      bio_has_offer: boolOrNull($('bioOffer').value),
+      bio_first_line_hook: boolOrNull($('bioHook').value),
+      link_visible: boolOrNull($('linkVisible').value),
     }
   };
 
@@ -161,8 +241,17 @@ $('go').onclick = async () => {
   }catch(e){ out.textContent = 'Network error: '+ String(e); }
 };
 
+function parseTags(s){
+  return (s||'')
+    .split(/[,\s]+/)
+    .map(t=>t.trim())
+    .filter(Boolean)
+    .map(t=>t.startsWith('#')?t.slice(1):t.toLowerCase());
+}
 function num(v){ const x = Number(v); return Number.isFinite(x) ? x : undefined }
-function bool(v){ return String(v).toLowerCase()==='true' }
+function numOr(v){ const x = Number(v); return Number.isFinite(x) ? x : undefined }
+function boolOrNull(v){ if(!v) return undefined; return String(v).toLowerCase()==='true' }
+function escapeHtml(s){return String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
 
 function renderReport(d){
   const scoreRow = Object.entries(d.scores||{}).map(([k,v])=>`<span class="chip"><strong>${k}</strong> ${v}%</span>`).join('');
@@ -171,13 +260,14 @@ function renderReport(d){
     return `<div class="panel"><h3 style="margin:0 0 6px">${escapeHtml(k)}</h3>${items?`<ul>${items}</ul>`:'<p class="muted">—</p>'}</div>`;
   }).join('') : '';
 
+  // fallback actions if API gave none
   const sig = d.profile?.signals || {};
   const fallbackActions = [
-    `Post 5x this week in ${sig.topic || 'your niche'} (Reels 3, Photos 1, Carousel 1).`,
+    `Post 5× this week in ${sig.topic || 'your niche'} (Reels 3, Photos 1, Carousel 1).`,
     `Write 9 hook variants and A/B test 3 per post (first 12 words).`,
     `Add explicit CTA in every post (comment a/b, save checklist, DM keyword).`,
     `Refresh covers: readable text on ${(sig.cover_text_ratio!=null?Math.round(sig.cover_text_ratio*100):'60')}%+ posts.`,
-    `Build 2 hashtag clusters (niche + geo ${sig.geo ? '('+sig.geo+')' : ''}) and rotate.`
+    `Build 2 hashtag clusters (niche + geo ${sig.geo ? '('+sig.geo+')' : ''}) and rotate per post.`
   ];
   const actionsList = (Array.isArray(d.actions_next7days) && d.actions_next7days.length) ? d.actions_next7days : fallbackActions;
   const actions = actionsList.map(a=>`<li>${escapeHtml(a)}</li>`).join('');
@@ -188,6 +278,7 @@ function renderReport(d){
     <h2>Report for <span class="pill">${escapeHtml(d.profile?.handle||'@yourname')}</span> · ${escapeHtml(d.profile?.platform||'')}</h2>
     <p class="muted">Goal: ${escapeHtml(d.profile?.goal||'')}</p>
     <div class="score-row">${scoreRow}</div>
+
     <div class="grid2">
       <section class="panel">
         <h3 style="margin:0 0 6px">Findings</h3>
@@ -204,7 +295,6 @@ function renderReport(d){
   `;
 }
 function attachPrint(){ const b=document.getElementById('exportPdf'); if(b) b.onclick=()=>window.print(); }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 </script>
 </body>
 </html>
