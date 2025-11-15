@@ -1,5 +1,5 @@
 // /api/checkout.js
-export const config = { runtime: 'nodejs' }; // допустимые: 'nodejs' | 'edge'
+export const config = { runtime: 'nodejs' }; // важно: не edge
 
 import Stripe from 'stripe';
 
@@ -10,12 +10,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const secret = process.env.STRIPE_SECRET_KEY;
-    const priceId = process.env.STRIPE_PRICE_ID; // создай продукт+price в Stripe и вставь ID вида price_***
+    const secret = process.env.STRIPE_SECRET_KEY;   // sk_test_***
+    const priceId = process.env.STRIPE_PRICE_ID;    // price_***
 
     if (!secret || !priceId) {
       return res.status(500).json({
-        error: 'Missing STRIPE_SECRET_KEY or STRIPE_PRICE_ID env vars',
+        error: 'Missing STRIPE_SECRET_KEY or STRIPE_PRICE_ID env vars'
       });
     }
 
@@ -34,6 +34,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ url: session.url });
   } catch (e) {
+    // Не даём функции упасть молча — возвращаем JSON с текстом ошибки
     return res.status(500).json({ error: e?.message || String(e) });
   }
 }
