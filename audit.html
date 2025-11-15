@@ -15,7 +15,7 @@
   textarea{min-height:62px; resize:vertical}
   button.primary{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#0b0c10;border:none;font-weight:700;cursor:pointer}
   .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr}
-  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .muted{color:var(--muted)}
   .pill{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--panel2);font-size:.9rem;color:var(--muted);margin:2px}
   .score-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
@@ -147,6 +147,8 @@
       <div class="row" style="margin-top:12px">
         <button class="primary" id="go">Generate</button>
         <button id="demo" type="button">@ampirdol demo</button>
+        <!-- Правильное место для кнопки оплаты -->
+        <button id="subscribeBtn" type="button" class="primary">Subscribe $9.99/mo</button>
       </div>
     </div>
 
@@ -160,21 +162,22 @@
 document.addEventListener('DOMContentLoaded', () => {
   const $ = (id)=>document.getElementById(id);
   const out = $('out');
-<button id="subscribeBtn" class="primary">Subscribe $9.99/mo</button>
 
-<script>
-document.getElementById("subscribeBtn").addEventListener("click", async () => {
-  try {
-    const r = await fetch("/api/checkout", { method: "POST" });
-    const data = await r.json();
-
-    if (data.url) window.location.href = data.url;
-    else alert("Payment error: " + data.error);
-  } catch (err) {
-    alert("Server error: " + err.message);
+  // Кнопка Stripe Checkout
+  const subBtn = $('subscribeBtn');
+  if (subBtn) {
+    subBtn.addEventListener('click', async () => {
+      try {
+        const r = await fetch('/api/checkout', { method: 'POST' });
+        const data = await r.json();
+        if (data.url) window.location.href = data.url;
+        else alert('Payment error: ' + (data.error || 'unknown'));
+      } catch (err) {
+        alert('Server error: ' + err.message);
+      }
+    });
   }
-});
-</script>
+
   /* DEMO PREFILL */
   $('demo').onclick = () => {
     $('platform').value = 'Instagram';
@@ -235,7 +238,6 @@ document.getElementById("subscribeBtn").addEventListener("click", async () => {
           carousels: num($('mixCar').value)
         },
 
-        // optional explicit flags
         bio_has_offer: boolOrNull($('bioOffer').value),
         bio_first_line_hook: boolOrNull($('bioHook').value),
         link_visible: boolOrNull($('linkVisible').value),
@@ -280,14 +282,16 @@ document.getElementById("subscribeBtn").addEventListener("click", async () => {
     }).join('') : '';
 
     const sig = d.profile?.signals || {};
-    const fallbackActions = [
-      `Post 5× this week in ${sig.topic || 'your niche'} (Reels 3, Photos 1, Carousel 1).`,
-      `Write 9 hook variants and A/B test 3 per post (first 12 words).`,
-      `Add explicit CTA in every post (comment a/b, save checklist, DM keyword).`,
-      `Refresh covers: readable text on ${(sig.cover_text_ratio!=null?Math.round(sig.cover_text_ratio*100):'60')}%+ posts.`,
-      `Build 2 hashtag clusters (niche + geo ${sig.geo ? '('+sig.geo+')' : ''}) and rotate per post.`
-    ];
-    const actionsList = (Array.isArray(d.actions_next7days) && d.actions_next7days.length) ? d.actions_next7days : fallbackActions;
+    const actionsList = (Array.isArray(d.actions_next7days) && d.actions_next7days.length)
+      ? d.actions_next7days
+      : [
+          `Post 5× this week in ${sig.topic || 'your niche'} (Reels 3, Photos 1, Carousel 1).`,
+          `Write 9 hook variants and A/B test 3 per post (first 12 words).`,
+          `Add explicit CTA in every post (comment a/b, save checklist, DM keyword).`,
+          `Refresh covers: readable text on ${(sig.cover_text_ratio!=null?Math.round(sig.cover_text_ratio*100):'60')}%+ posts.`,
+          `Build 2 hashtag clusters (niche + geo ${sig.geo ? '('+sig.geo+')' : ''}) and rotate per post.`
+        ];
+
     const actions = actionsList.map(a=>`<li>${escapeHtml(a)}</li>`).join('');
     const hooks = (d.ready_to_copy?.hooks||[]).map(h=>`<code>${escapeHtml(h)}</code>`).join('');
     const tags  = (d.ready_to_copy?.hashtags||[]).map(t=>`<span class="pill">#${escapeHtml(t.replace(/^#/,''))}</span>`).join('');
