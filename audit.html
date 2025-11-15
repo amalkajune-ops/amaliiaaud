@@ -160,7 +160,21 @@
 document.addEventListener('DOMContentLoaded', () => {
   const $ = (id)=>document.getElementById(id);
   const out = $('out');
+<button id="subscribeBtn" class="primary">Subscribe $9.99/mo</button>
 
+<script>
+document.getElementById("subscribeBtn").addEventListener("click", async () => {
+  try {
+    const r = await fetch("/api/checkout", { method: "POST" });
+    const data = await r.json();
+
+    if (data.url) window.location.href = data.url;
+    else alert("Payment error: " + data.error);
+  } catch (err) {
+    alert("Server error: " + err.message);
+  }
+});
+</script>
   /* DEMO PREFILL */
   $('demo').onclick = () => {
     $('platform').value = 'Instagram';
