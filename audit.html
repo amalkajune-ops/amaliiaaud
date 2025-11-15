@@ -157,7 +157,34 @@
       <pre id="out" class="muted">Ready…</pre>
     </div>
   </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const subBtn = document.getElementById('subscribeBtn');
+  if (subBtn) {
+    subBtn.addEventListener('click', async () => {
+      try {
+        const r = await fetch('/api/checkout', { method: 'POST' });
+        const raw = await r.text(); // читаем как текст
+        let data;
+        try { data = JSON.parse(raw); }
+        catch { alert('Payment error (non-JSON): ' + raw); return; }
 
+        if (!r.ok) {
+          alert('Payment error: ' + (data?.error || r.status));
+          return;
+        }
+        if (data?.url) {
+          window.location.href = data.url;
+        } else {
+          alert('Payment error: no URL in response');
+        }
+      } catch (err) {
+        alert('Server error: ' + err.message);
+      }
+    });
+  }
+});
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const $ = (id)=>document.getElementById(id);
