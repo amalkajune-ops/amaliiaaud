@@ -1,3 +1,9 @@
 {
-  "type": "module"
+  "name": "amaliia-aud",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "stripe": "^16.6.0"
+  }
 }
